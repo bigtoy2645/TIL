@@ -105,6 +105,28 @@ item.notify(queue: DispatchQueue.main, execute: item2)
 - wait() : 자원이 있으면 쓰고, 없으면 기다림.
 - signal() : 작업을 마쳤으니 자원을 회수함.
 
+## 동시성 문제
+**Race Condition** : 2개 이상의 스레드를 사용하면서, 동일한 메모리 접근 등으로 인해 발생할 수 있는 문제
+
+해결 : 여러 스레드가 데이터에 접근해도 한 번에 한 개의 스레드만 접근 가능하도록 처리
+
+**Deadlock** : 2개 이상의 스레드가 2개 이상의 자원을 서로 점유하려 해 사용이 막힘.
+
+- 현재 스레드에서 sync 호출하는 경우
+- 앞선 작업이 현재의 스레드가 필요한 경우
+- 여러 개의 세마포어가 존재할때
+
+해결 : Serial Queue로 해결 가능함. 설계 시 주의해야 함.
+
+**Priority Inversion** : 작업의 QoS이 뒤바뀌어 진행되는 문제
+
+스레드 우선순위 : A > B
+- Serial Queue에서 A가 B의 뒤에 보내지는 경우
+- B가 A에 필요한 자원을 잠그고 있는 경우
+- A가 B에 의존하는 경우 (Operation)
+
+해결 : 기본적으로 GCD가 우선순위를 조정해서 알아서 해결함. 공유된 자원 접근 시 동일한 QoS 사용
+
 ## 참고
 - https://zeddios.tistory.com/513
 - [iOS Concurrency(동시성) 프로그래밍, 동기 비동기 처리 그리고 GCD/Operation](https://inf.run/6Ctr)
