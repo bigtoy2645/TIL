@@ -24,3 +24,61 @@
 
 Q. 매 번 스크립트 빌드하는 이유
 A. 이유가 있진 않았고, Sheet를 한 번 더 거치는 방법을 적용할 수 있을 것임.
+
+## Deprecated API로 보는 SwiftUI
+
+### API Design Guidelines
+- 인수를 유용하게 구별할 수 없는 경우 모든 레이블 생략   
+  min(number1, number2)
+- 값을 보존하며 타입을 변환하는 생성자는 첫 번째 인수 레이블 생략   
+  UInt32(someUIInt16number)
+- 첫 번째 인수가 전치사구의 일부를 구성하면 인수 레이블 지정   
+  func move(to p: CGPoint)
+- 첫 번째  인수가 문법적 구문의 일부이면, 레이블을 생력하고 기본 이름에 선행 단어 추가   
+  func add(Subview view: UIView) -> func addSubView(_ view: UIView)
+
+### IgnoresSafeArea
+SwiftUI는 기본적으로 textfield, texteditor를 통해 키보드가 올라오게 되면 자동으로 SafeArea를 옮겨 View를 위치시켜줌.
+키보드 표시 여부에 따라 안전 영역의 값이 변화됨.
+**SafeAreaRegions**   
+- .all : 키보드 On/Off 무시
+- .keyboard : 키보드 영역만 무시
+- .container : 안전 영역만 무시
+
+**Edge.Set**   
+- .top : 상단 안전 영역 무시
+- .bottom : 하단 안전 영역 무시
+
+### preferredColorScheme Light/Dark 모드
+**colorScheme / environment(\.colorScheme)**
+- 지정한 뷰와 자식 뷰에 영향
+- 뷰마다 개별 적용 가능
+
+**preferredColorScheme**
+- 뷰 계층 구조 위/아래 모두에 영향
+- colorScheme이 우선 순위로 적용
+
+### navigationTitle
+기존에 macOS는 navigationBarTitle 지정 불가능했음.
+View를 extension하여 적용하도록 한다.
+
+### Toolbar
+navigationBarItems -> toolbar 모든 플랫폼에서 사용 가능함.
+ToolbarItemPlacement 활용
+플랫폼에 따라 다르게 위치할 수 있으므로 주의해야 함.
+
+### ContextMenu
+**ContextMenu** : 길게 눌렀을 때 메뉴 View가 표시됨.
+- iOS 13+
+- ViewModifier
+- 서브 메뉴 제공 불가 UIKit에서는 가능. iOS 14부터 가능
+
+**Menu** : 탭하면 메뉴 View가 표시됨. 이 자체가 View
+- iOS 14
+- iOS, macOS Only
+- View
+- 서브 메뉴 가능
+
+### Drag & Drop UTI
+Uniform Type Identifier = String   
+Import UniformTypeIdentifiers 하여 사용
