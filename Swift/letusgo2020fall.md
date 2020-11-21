@@ -28,6 +28,7 @@
 Q. 매 번 스크립트 빌드하는 이유   
 A. 이유가 있진 않았고, Sheet를 한 번 더 거치는 방법을 적용할 수 있을 것임.
 
+
 ## Deprecated API로 보는 SwiftUI
 
 ### API Design Guidelines
@@ -86,6 +87,7 @@ ToolbarItemPlacement 활용
 Uniform Type Identifier = String   
 Import UniformTypeIdentifiers 하여 사용
 
+
 ## 코드 삼분지계: 관심사에 따른 코드 분리 👍
 - 중복코드 발생 > 코드의 재사용성 증가
 - 코드를 찾기 어려움 > 협업의 용이
@@ -97,7 +99,7 @@ Model - Container/Presenter/ViewModel - View
 - 외부 의존도 : 3rd Party Libraries, …
 
 **Pure -> Protocol <- Platform**
-세 가지 영역으로 분리할 경우 플랫폼이 변경되면 Pure, Protocol은 유지되고 Platform 코드만 변경하여 적용 가능함.
+- 세 가지 영역으로 분리할 경우 플랫폼이 변경되면 Pure, Protocol은 유지되고 Platform 코드만 변경하여 적용 가능함.
 
 **Model - Logic(ViewModel) - Interface(Protocol) - Platform(UIKit)**
 
