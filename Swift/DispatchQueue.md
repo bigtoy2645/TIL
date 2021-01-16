@@ -125,7 +125,59 @@ item.notify(queue: DispatchQueue.main, execute: item2)
 - B가 A에 필요한 자원을 잠그고 있는 경우
 - A가 B에 의존하는 경우 (Operation)
 
-해결 : 기본적으로 GCD가 우선순위를 조정해서 알아서 해결함. 공유된 자원 접근 시 동일한 QoS 사용
+해결 : 기본적으로 GCD가 우선순위를 조정해서 알아서 해결함. 공유된 자원 접근 시 동일한 QoS(중요도) 사용
+
+## Thread-Safe 한 코드 구현하기   
+여러 스레드를 사용해 객체에 접근해도 한 번에 한 개의 스레드만 접근 가능하도록 처리하여   
+Race Condition이 발생하지 않도록 한다.   
+객체 설계 시 Main이 아닌 스레드에서 접근할 가능성이 있는 지 고려해야 한다.
+   
+**Tsan(Thread Sanitizer Tool) 사용** : 엄격한 Thread-Safe   
+Edit Scheme > Run > Diagnotics > Thread Sanitizer 체크 : 빌드 시 보라색으로 Race Condition을 표시해 준다.
+   
+**SerialQueue + Sync**   
+여러 스레드에서 객체의 읽기/쓰기 또는 쓰기/쓰기 작업이 겹칠 경우 Thread-Safe 하지 않음.   
+async 함수 내에서 객체를 읽으면 제대로된 값을 얻지 못할 수 있으므로   
+SerialQueue 와 sync를 사용해 순차적으로 접근할 수 있도록 바꿔줘야 함. (Main 제외)   
+```
+DispatchQueue.global().async {
+	serialQueue.sync {
+		_count		// 올바른 사용
+	}
+	_count			// 잘못된 값을 읽어올 수 있음.
+}
+```
+   
+**Dispatch Barrier** : 유연한 Thread-Safe   
+concurrentQueue 내의 여러 스레드 중 barrier 작업의 경우 한 개의 스레드만 사용해 serial로 실행 가능한 방법   
+다른 스레드에서도 접근하지 못하게 **장벽**을 친다는 의미.   
+e.g. 쓰기 작업만 barrier 설정   
+```
+let newConcurrentQueue = DispatchQueue(label: "...", attributes: .concurrent)
+    
+// 쓰기 - Concurrent + Barrier 작업으로 설정
+override func changeName(firstName: String, lastName: String) {
+	newConcurrentQueue.async(flags: .barrier) {
+		super.changeName(firstName: firstName, lastName: lastName)
+	}
+}
+    
+// 읽기 - Concurrent + sync 작업으로 설정
+override var name: String {
+	newConcurrentQueue.sync {
+		return super.name
+	}
+}
+```   
+
+## Lazy Var 이슈   
+Thread-Safe하지 않은 lazy var는 메모리에 여러 개가 생성된다.
+
+**해결 방법**   
+1. 비동기 작업하기 전 lazy var 변수를 생성하고 시작한다.   
+2. SerialQueue + sync : 일반 var 변수를 생성하여 serialQueue.sync로 lazy var를 읽어오도록 한다.   
+3. Dispatch Barrier : async flag에 barrier를 지정해주어 순차적으로 실행되도록 한다.   
+4. Dispatch Semaphore : DispatchSemaphore Value를 지정해준다.   
 
 ## 참고
 - https://zeddios.tistory.com/513
