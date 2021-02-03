@@ -18,8 +18,16 @@
 - CompletionBlock(Closure)을 제공한다.
 
 ## GCD vs Operation
-- GCD : 간단한 일, 메서드 위주 작업
-- Operation : 복잡한 일, 데이터+기능 캡슐화한 객체, 취소, 순서 지정, 일시 중지
+| 구분 | GCD | OperationQueue |
+|---|---|---|
+| 규모 | 간단한 일 | 복잡한 일 |
+| 사용 목적 |  다른 스레드에서 비동기 처리 | 여러가지 추가 기능 활용 |
+| Task | 메서드/코드 (DispatchWorkItem은 Class) | 데이터와 기능 캡슐화 (Class) | 
+| 작업 취소 | DispatchWorkItem만 가능 | 가능 | 
+| 순서 설정 | SerialQueue, DispatchWorkItem로 가능 | 가능 | 
+| 상태 추적 | 불가능 | 가능 | 
+| Barrier | 가능 | 불필요 | 
+| 그룹 작업 | Dispatch Group | Block Operation으로 가능 | 
 
 ## 메서드 및 변수   
 - start() 메서드
@@ -35,7 +43,7 @@
 - DispatchQueue.global()에서 동작함. Block을 여러 스레드로 보냄.
 - 기본은 동기적, 다른 큐에 보내 비동기적으로 동작하는 것도 가능함.
 
-## Asnyc Operation
+## Async Operation
 Operation 내에 비동기 함수가 있으면 state, notification 관리를 수동으로 해줘야 함.   
 isReady, isExecuting, isFinished 가 read-only 변수이므로 상태 값을 관리하는 모듈이 필요함. **잘 만들어 놓은 코드 활용**
 
